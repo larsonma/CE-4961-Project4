@@ -68,21 +68,20 @@ int main(int argc, char** argv){
             perror("Error accepting client connection");
             printf("Error accepting client connection");
         }
-        serve_client(client_sock_fd);
 
-        //pid = fork();
+        pid = fork();
 
-        // if(pid < 0){
-        //     perror("Error forking process");
-        // }else if(pid == 0){
-        //     //child process. Close main socket pipe.
-        //     close(server_sock_fd);
-        //     serve_client(client_sock_fd);
-        //     exit(0);
-        // }else{
-        //     //parent process. Close pipe to child socket.
-        //     close(client_sock_fd);
-        // }
+        if(pid < 0){
+            perror("Error forking process");
+        }else if(pid == 0){
+            //child process. Close main socket pipe.
+            close(server_sock_fd);
+            serve_client(client_sock_fd);
+            exit(0);
+        }else{
+            //parent process. Close pipe to child socket.
+            close(client_sock_fd);
+        }
     }
 
     return 0;

@@ -1,78 +1,92 @@
 #include "http_server.h"
 #include "http_response.h"
+#include "http_request.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-char* www = "./www";
+char root[6] = "./www";
 
-void serve_client(int client_sock_fd){
-    char readbuffer[1000];
-    char* source;
-    char HTTP_verb[7+1];
-    char url[100];
-    char version[10];
-    char filepath[107];
-    char header[2000];
-    int content_len = 0;
-    FILE* fp = NULL;
-    int status;
+void read_data(struct HTTP_REQUEST_STUCT*, struct HTTP_RESPONSE_STRUCT*);
+void reroute(struct HTTP_REQUEST_STUCT*, int);
 
-    header[0] = '\0';
+void serve_client(int client_sock_fd){   
+    struct HTTP_REQUEST_STUCT request = {};
+    struct HTTP_RESPONSE_STRUCT response = {};
+    FILE *inStream;
 
+    if(!(inStream = fdopen(client_sock_fd, "r"))){
+        printf("Error opening TCP input stream\n");
+    };
 
-    //Read data into a buffer using low level api
-    if(read(client_sock_fd, readbuffer, 1000) < 0){
-        perror("Error reading client data");
-        exit(1);
-    }
-
-    sscanf(readbuffer, "%s %s %s", HTTP_verb, url, version);
+    fscanf(inStream, "%s %s %s", request.header.HTTP_verb, request.header.url, request.header.version);
 
     //GET is the only supported command
-    if(strcmp(HTTP_verb, "GET") != 0){
-        status = 405;
+    if(strcmp(request.header.HTTP_verb, "GET") != 0){
+        response.header.status = 405;
     }else{
         //Check if the file exists
-        strcpy(filepath, www);
+        strcpy(request.filepath, root);
 
-        fp = fopen (strcat(filepath, url),"r");
+        FILE *fp = fopen (strcat(request.filepath, request.header.url),"rb");
 
-        printf("GET %s\n", filepath);
+        printf("GET %s\n", request.filepath);
 
-        if (fp == NULL) {
-            //File does not exist. Return 404.
-            status = 404;
-        } else {
-            status = 200;
+        if (fp == NULL && strcmp(request.header.url, "/brew/coffee") == 0) {
+            response.header.status = 418;
+        } else if(fp == NULL) {
+            response.header.status = 404;
+        }else {
+            response.header.status = 200;
+            fclose(fp);
         }
     }
 
-    if(status == 200){
-        fseek(fp, 0, SEEK_END);
-        content_len = ftell(fp);  
-        fseek(fp, 0, SEEK_SET);
-
-        //read file into memory
-        source = malloc(sizeof(char) * (content_len + 1));
-        size_t newLen = fread(source, sizeof(char), content_len, fp);
-        source[newLen++] = '\0';
+    if(response.header.status != 200){
+        reroute(&request, response.header.status);
     }
 
+    set_header_data(&request, &response);
+    read_data(&request, &response);
+    create_response(&response);
 
-    //Write Header data to HTTP client
-    create_header(status, "text/html", content_len, header);
-    printf(header);
-    if(write(client_sock_fd, header, strlen(header)))
-
-    //Write data to HTTP client if file found
-    if(status == 200){
-        write(client_sock_fd, "\n", 1);
-        write(client_sock_fd, source, content_len);
-        fclose(fp);
-        free(source);
-    }
+    write(client_sock_fd, response.header_str, response.header.hlen);
+    write(client_sock_fd, response.data, response.header.content_length);
+    
+    free(response.header_str);
+    free(response.data);
 
     close(client_sock_fd);
+}
+
+void read_data(struct HTTP_REQUEST_STUCT *request, struct HTTP_RESPONSE_STRUCT *response){
+    FILE *fp = fopen(request->filepath, "rb");
+
+    if(fp){
+        response->data = (uint8_t*)malloc((*response).header.content_length + 1);
+        fread(response->data, (*response).header.content_length, 1, fp);
+        fclose(fp);
+    }
+}
+
+void reroute(struct HTTP_REQUEST_STUCT *request, int status){
+    char newPath[16];
+    strcpy(newPath, root);
+
+    switch(status){
+        case 404:
+            strcpy(request->filepath, strcat(newPath, "/404.html\0"));
+            break;
+        case 405:
+            strcpy(request->filepath, strcat(newPath, "/405.html\0"));
+            break;
+        case 418:
+            strcpy(request->filepath, strcat(newPath, "/418.html\0"));
+            break;
+        case 500:
+        default:
+            strcpy(request->filepath, strcat(newPath, "/418.html\0"));
+            break;
+    }
 }

@@ -1,5 +1,5 @@
-CC=gcc
-CFLAGS=-c -Wall
+CC=g++
+CFLAGS=-c -Wall -g
 LDFLAGS= -Wall
 SOURCES=$(wildcard $(SRCDIR)/*.c)
 INCLUDES=$(wildcard $(INCDIR)/*.h)

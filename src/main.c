@@ -24,7 +24,7 @@ int main(int argc, char** argv){
 
     //User should pass port to run HTTP server on
     if(argc != 2){
-        printf("Usage: echoclient <IP Address> <port>\n");
+        printf("Usage: httpclient <port>\n");
         exit(1);
     }
 
@@ -66,6 +66,7 @@ int main(int argc, char** argv){
 
         if(client_sock_fd < 0){
             perror("Error accepting client connection");
+            printf("Error accepting client connection");
         }
         serve_client(client_sock_fd);
 

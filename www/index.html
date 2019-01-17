@@ -6,6 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style></style>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 </head>
 
 <body>
@@ -13,7 +14,22 @@
     <p>
         This is the landing page for Mitchell Larson's simple HTTP server.
     </p>
-    <img href="./img/football.jpg"/>
+    <p>Here is a list of available files on this server.</p>
+    <ul>
+        <li style="list-style-type:none"><i class="far fa-folder" aria-hidden="true"></i><span style="padding-left: 5px;">www</span></li>
+        <ul>
+            <li style="list-style-type:none"><i class="far fa-folder" aria-hidden="true"></i><span style="padding-left: 5px;">img</span></li>
+                <ul>
+                    <li style="list-style-type:none"><i class="far fa-file"></i><span style="padding-left: 5px"><a href="/img/football.jpg">football.jpg</a></span></li>
+                    <li style="list-style-type:none"><i class="far fa-file"></i><span style="padding-left: 5px"><a href="/img/teapot.png">teapot.png</a></span></li>
+                </ul>
+            <li style="list-style-type:none"><i class="far fa-folder" aria-hidden="true"></i><span style="padding-left: 5px;">text</span></li>
+                <ul>
+                    <li style="list-style-type:none"><i class="far fa-file"></i><span style="padding-left: 5px"><a href="/text/story.txt">story.txt</a></span></li>
+                </ul>
+            <li style="list-style-type:none"><i class="far fa-file"></i><span style="padding-left: 5px"><a href="/index.html">index.html</a></span></li>
+        </ul>
+    </ul>
 </body>
 
 </html>

@@ -55,9 +55,9 @@ void print_header(struct HTTP_RESPONSE_STRUCT* response){
     sprintf(length, "%d", (*response).header.content_length);
     strcat(header, "Content-Length: ");
     strcat(header, length);
-    strcat(header, "\n");
+    strcat(header, "\n\n\0");
 
-    strcat(header, "Connection: close\n\n\0");
+    // strcat(header, "Connection: close\n\n\0");
 
     (*response).header.hlen = strlen(header);
     response->header_str = (uint8_t*)malloc((*response).header.hlen + 1);

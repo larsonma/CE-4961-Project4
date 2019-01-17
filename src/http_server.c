@@ -53,11 +53,11 @@ void serve_client(int client_sock_fd){
 
     write(client_sock_fd, response.header_str, response.header.hlen);
     write(client_sock_fd, response.data, response.header.content_length);
-    
+
     free(response.header_str);
     free(response.data);
 
-    close(client_sock_fd);
+    // close(client_sock_fd);
 }
 
 void read_data(struct HTTP_REQUEST_STUCT *request, struct HTTP_RESPONSE_STRUCT *response){

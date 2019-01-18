@@ -1,20 +1,29 @@
 #include "http_response.h"
-#include "http_request.h"
 
-#include <string.h>
-#include <time.h>
-#include <stdlib.h>
+static void read_data(struct HTTP_REQUEST_STUCT*, struct HTTP_RESPONSE_STRUCT*);
+static void set_header_data(struct HTTP_REQUEST_STUCT*, struct HTTP_RESPONSE_STRUCT*);
+static void get_message(int, char*);
+static void set_content_type(char*, struct HTTP_RESPONSE_HEADER*);
+static void set_content_len(char*, struct HTTP_RESPONSE_HEADER*);
+static void set_date(struct HTTP_RESPONSE_HEADER*);
+static void set_hostname(struct HTTP_RESPONSE_HEADER*);
+static void print_header(struct HTTP_RESPONSE_STRUCT* response);
 
-void get_message(int, char*);
-void set_content_type(char*, struct HTTP_RESPONSE_HEADER*);
-void set_content_len(char*, struct HTTP_RESPONSE_HEADER*);
-void set_date(struct HTTP_RESPONSE_HEADER*);
-void set_hostname(struct HTTP_RESPONSE_HEADER*);
-void print_header(struct HTTP_RESPONSE_STRUCT* response);
-
-void create_response(struct HTTP_RESPONSE_STRUCT *response){
+void create_response(struct HTTP_REQUEST_STUCT *request, struct HTTP_RESPONSE_STRUCT *response){
     //Print the header to the full data
+    set_header_data(request, response);
+    read_data(request, response);
     print_header(response);
+}
+
+void read_data(struct HTTP_REQUEST_STUCT *request, struct HTTP_RESPONSE_STRUCT *response){
+    FILE *fp = fopen(request->filepath, "rb");
+
+    if(fp){
+        response->data = (uint8_t*)malloc((*response).header.content_length + 1);
+        fread(response->data, (*response).header.content_length, 1, fp);
+        fclose(fp);
+    }
 }
 
 void set_header_data(struct HTTP_REQUEST_STUCT *request, struct HTTP_RESPONSE_STRUCT *response){
@@ -55,12 +64,11 @@ void print_header(struct HTTP_RESPONSE_STRUCT* response){
     sprintf(length, "%d", (*response).header.content_length);
     strcat(header, "Content-Length: ");
     strcat(header, length);
-    strcat(header, "\n\n\0");
+    strcat(header, "\n");
 
-    // strcat(header, "Connection: close\n\n\0");
+    strcat(header, "Connection: close\n\n\0");
 
-    (*response).header.hlen = strlen(header);
-    response->header_str = (uint8_t*)malloc((*response).header.hlen + 1);
+    response->header_str = (uint8_t*)malloc(strlen(header) + 1);
     strcpy((char*)response->header_str, header);
 }
 

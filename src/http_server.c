@@ -1,15 +1,8 @@
 #include "http_server.h"
-#include "http_response.h"
-#include "http_request.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+static char root[6] = "./www";
 
-char root[6] = "./www";
-
-void read_data(struct HTTP_REQUEST_STUCT*, struct HTTP_RESPONSE_STRUCT*);
-void reroute(struct HTTP_REQUEST_STUCT*, int);
+static void reroute(struct HTTP_REQUEST_STUCT*, int);
 
 void serve_client(int client_sock_fd){   
     struct HTTP_REQUEST_STUCT request = {};
@@ -47,27 +40,15 @@ void serve_client(int client_sock_fd){
         reroute(&request, response.header.status);
     }
 
-    set_header_data(&request, &response);
-    read_data(&request, &response);
-    create_response(&response);
+    create_response(&request, &response);
 
-    write(client_sock_fd, response.header_str, response.header.hlen);
+    write(client_sock_fd, response.header_str, strlen((char*)response.header_str));
     write(client_sock_fd, response.data, response.header.content_length);
 
     free(response.header_str);
     free(response.data);
 
-    // close(client_sock_fd);
-}
-
-void read_data(struct HTTP_REQUEST_STUCT *request, struct HTTP_RESPONSE_STRUCT *response){
-    FILE *fp = fopen(request->filepath, "rb");
-
-    if(fp){
-        response->data = (uint8_t*)malloc((*response).header.content_length + 1);
-        fread(response->data, (*response).header.content_length, 1, fp);
-        fclose(fp);
-    }
+    close(client_sock_fd);
 }
 
 void reroute(struct HTTP_REQUEST_STUCT *request, int status){

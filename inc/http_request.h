@@ -16,7 +16,6 @@ struct HTTP_REQUEST_HEADER {
 struct HTTP_REQUEST_STUCT {
     struct HTTP_REQUEST_HEADER header;
     char filepath[110];
-    uint8_t *data;
 };
 
 #endif

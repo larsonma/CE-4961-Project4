@@ -1,6 +1,8 @@
 //Name: Mitchell Larson
 //Course: CE 4961
-//Assignment: Project 3
+//Assignment: Project 4
+//Description: This file servers as the main entry to a simple HTTP server.
+//Note: Portions of this file were copied from Project 3 - echo client.
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,7 +68,6 @@ int main(int argc, char** argv){
 
         if(client_sock_fd < 0){
             perror("Error accepting client connection");
-            printf("Error accepting client connection");
         }
 
         pid = fork();

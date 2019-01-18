@@ -1,3 +1,14 @@
+/**
+ * @file    - http_request.h
+ * @author  - Mitchell Larson (larsonma@msoe.edu)
+ * @brief   - Common struct for http request data.
+ * @version - 0.1
+ * @date    - 2019-01-17
+ * 
+ * Copyright (c) 2019
+ * 
+ */
+
 #ifndef HTTP_REQUEST
 #define HTTP_REQUEST
 
